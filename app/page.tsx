@@ -211,7 +211,7 @@ export default function RsvpPage() {
           <div className="text-5xl mb-4">🌙✨</div>
           <h2 className="text-4xl font-bold text-white mb-2">Terima kasih, {data.name.split(' ')[0]}!</h2>
           {data.attending === 'yes' ? (
-            <p className="text-emerald-300 text-lg mb-6">Nampak muka kau nanti! 😄</p>
+            <p className="text-emerald-300 text-lg mb-6">Jumpa Nanti!! 😄</p>
           ) : (
             <p className="text-emerald-300 text-lg mb-6">Takpe, lain kali kita jumpa! 😊</p>
           )}
