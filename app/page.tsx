@@ -20,6 +20,7 @@ const GUEST_OPTIONS = [
 ];
 
 export default function RsvpPage() {
+  const [started, setStarted] = useState(false);
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState<Direction>('up');
   const [stepKey, setStepKey] = useState(0);
@@ -114,6 +115,62 @@ export default function RsvpPage() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
+
+  if (!started) {
+    return (
+      <div className="min-h-screen bg-[#0d2418] flex items-center justify-center p-6">
+        <div className="text-center max-w-lg animate-slide-up">
+          {/* Decorative lanterns */}
+          <div className="flex justify-center gap-6 mb-6 text-4xl">
+            <span>🏮</span>
+            <span className="text-5xl">🌙</span>
+            <span>🏮</span>
+          </div>
+
+          <p className="text-amber-400 text-sm font-semibold tracking-widest uppercase mb-3">
+            You&apos;re invited
+          </p>
+
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight mb-4">
+            Jom Raya<br />
+            <span className="text-amber-400">Open House!</span>
+          </h1>
+
+          <p className="text-emerald-300 text-lg leading-relaxed mb-2">
+            Assalamualaikum & Selamat Datang! 🤗
+          </p>
+          <p className="text-emerald-400 text-base leading-relaxed mb-8">
+            Kami dengan penuh kegembiraan menjemput kau ke majlis<br className="hidden md:block" />
+            <span className="text-white font-semibold"> Open House Hari Raya Aidilfitri</span> kami.<br />
+            Jangan malu, jangan segan — makan banyak-banyak! 😄
+          </p>
+
+          {/* Divider */}
+          <div className="flex items-center gap-3 justify-center mb-8">
+            <div className="h-px w-16 bg-emerald-700" />
+            <span className="text-amber-500 text-lg">✦</span>
+            <div className="h-px w-16 bg-emerald-700" />
+          </div>
+
+          <p className="text-emerald-500 text-sm mb-6">
+            Ambik masa 1 minit je untuk isi borang ni.<br />
+            Tolong confirm supaya kami boleh bersedia untuk kau! 🙏
+          </p>
+
+          <button
+            onClick={() => setStarted(true)}
+            className="bg-amber-400 hover:bg-amber-300 active:scale-95 text-emerald-950 font-bold px-10 py-4 rounded-xl transition-all text-lg shadow-lg shadow-amber-400/20"
+          >
+            Mula RSVP &nbsp;→
+          </button>
+
+          <p className="text-emerald-800 text-xs mt-8">
+            Selamat Hari Raya Aidilfitri · Maaf Zahir & Batin
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (submitted) {
     return (
