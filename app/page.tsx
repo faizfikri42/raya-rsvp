@@ -246,7 +246,7 @@ export default function RsvpPage() {
               </p>
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-8 leading-tight">
                 Eh, siapa tu? 👋<br />
-                <span className="text-emerald-300">Nama kau apa?</span>
+                <span className="text-emerald-300">Nama apa ya?</span>
               </h2>
               <input
                 ref={inputRef as React.RefObject<HTMLInputElement>}
@@ -254,7 +254,7 @@ export default function RsvpPage() {
                 value={data.name}
                 onChange={e => setData(d => ({ ...d, name: e.target.value }))}
                 onKeyDown={e => e.key === 'Enter' && data.name.trim() && goNext()}
-                placeholder="Taip nama kau di sini..."
+                placeholder="Type Nama Disini..."
                 className="w-full bg-transparent border-b-2 border-emerald-600 focus:border-amber-400 text-white text-2xl py-3 outline-none placeholder:text-emerald-800 transition-colors caret-amber-400"
               />
               <div className="mt-8 flex items-center gap-4">
