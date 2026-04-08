@@ -132,8 +132,8 @@ export default function RsvpPage() {
           </p>
 
           <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight mb-4">
-            Jom Raya<br />
-            <span className="text-amber-400">Open House!</span>
+            Open House<br />
+            <span className="text-amber-400">Faiz & Umi</span>
           </h1>
 
           <p className="text-emerald-300 text-lg leading-relaxed mb-2">
