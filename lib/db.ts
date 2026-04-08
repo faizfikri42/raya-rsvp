@@ -1,12 +1,11 @@
-import { put, list, getDownloadUrl } from '@vercel/blob';
+import { put, list } from '@vercel/blob';
 
 export type RSVP = {
   id: string;
   name: string;
-  whatsapp: string;
-  attending: 'yes' | 'maybe' | 'no';
-  guest_count: number;
-  dietary: string | null;
+  attending: 'yes' | 'no';
+  guest_count: number | null;
+  car_plate: string | null;
   message: string | null;
   created_at: string;
 };

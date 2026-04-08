@@ -4,27 +4,20 @@ import { saveRsvp } from '@/lib/db';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, whatsapp, attending, guest_count, dietary, message } = body;
+    const { name, attending, guest_count, car_plate, message } = body;
 
-    if (!name || !whatsapp || !attending) {
-      return NextResponse.json({ error: 'Name, WhatsApp, and attendance are required' }, { status: 400 });
+    if (!name?.trim()) {
+      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     }
-
-    if (!['yes', 'maybe', 'no'].includes(attending)) {
-      return NextResponse.json({ error: 'Invalid attendance value' }, { status: 400 });
-    }
-
-    const count = parseInt(guest_count) || 1;
-    if (count < 1 || count > 20) {
-      return NextResponse.json({ error: 'Guest count must be between 1 and 20' }, { status: 400 });
+    if (!['yes', 'no'].includes(attending)) {
+      return NextResponse.json({ error: 'Attendance is required' }, { status: 400 });
     }
 
     const rsvp = await saveRsvp({
       name: name.trim(),
-      whatsapp: whatsapp.trim(),
       attending,
-      guest_count: count,
-      dietary: dietary?.trim() || null,
+      guest_count: attending === 'yes' ? (parseInt(guest_count) || 1) : null,
+      car_plate: attending === 'yes' ? (car_plate?.trim() || null) : null,
       message: message?.trim() || null,
     });
 

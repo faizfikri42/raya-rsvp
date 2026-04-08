@@ -3,12 +3,11 @@
 import { useState, useEffect } from 'react';
 
 type RSVP = {
-  id: number;
+  id: string;
   name: string;
-  whatsapp: string;
-  attending: string;
-  guest_count: number;
-  dietary: string | null;
+  attending: 'yes' | 'no';
+  guest_count: number | null;
+  car_plate: string | null;
   message: string | null;
   created_at: string;
 };
@@ -53,10 +52,8 @@ export default function AdminPage() {
   }, [authenticated, secret]);
 
   const attending = rsvps.filter(r => r.attending === 'yes');
-  const maybe = rsvps.filter(r => r.attending === 'maybe');
   const notAttending = rsvps.filter(r => r.attending === 'no');
-  const totalGuests = attending.reduce((sum, r) => sum + r.guest_count, 0);
-  const maybeGuests = maybe.reduce((sum, r) => sum + r.guest_count, 0);
+  const totalGuests = attending.reduce((sum, r) => sum + (r.guest_count ?? 0), 0);
 
   if (!authenticated) {
     return (
@@ -105,25 +102,19 @@ export default function AdminPage() {
         </div>
 
         {/* Summary cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="bg-white rounded-2xl shadow p-5 border-l-4 border-emerald-500">
             <p className="text-3xl font-bold text-emerald-600">{attending.length}</p>
-            <p className="text-sm text-gray-500 mt-1">Confirmed Yes</p>
-            <p className="text-xs text-gray-400">{totalGuests} guests total</p>
-          </div>
-          <div className="bg-white rounded-2xl shadow p-5 border-l-4 border-amber-400">
-            <p className="text-3xl font-bold text-amber-500">{maybe.length}</p>
-            <p className="text-sm text-gray-500 mt-1">Maybe</p>
-            <p className="text-xs text-gray-400">{maybeGuests} potential guests</p>
+            <p className="text-sm text-gray-500 mt-1">✅ Datang</p>
+            <p className="text-xs text-gray-400">{totalGuests} orang total</p>
           </div>
           <div className="bg-white rounded-2xl shadow p-5 border-l-4 border-red-400">
             <p className="text-3xl font-bold text-red-500">{notAttending.length}</p>
-            <p className="text-sm text-gray-500 mt-1">Can&apos;t make it</p>
+            <p className="text-sm text-gray-500 mt-1">❌ Tak datang</p>
           </div>
           <div className="bg-white rounded-2xl shadow p-5 border-l-4 border-blue-400">
-            <p className="text-3xl font-bold text-blue-500">{totalGuests + maybeGuests}</p>
-            <p className="text-sm text-gray-500 mt-1">Max Expected</p>
-            <p className="text-xs text-gray-400">confirmed + maybe</p>
+            <p className="text-3xl font-bold text-blue-500">{rsvps.length}</p>
+            <p className="text-sm text-gray-500 mt-1">📋 Total responses</p>
           </div>
         </div>
 
@@ -140,13 +131,12 @@ export default function AdminPage() {
                 <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
                   <tr>
                     <th className="px-4 py-3 text-left">#</th>
-                    <th className="px-4 py-3 text-left">Name</th>
-                    <th className="px-4 py-3 text-left">WhatsApp</th>
-                    <th className="px-4 py-3 text-left">Attending</th>
-                    <th className="px-4 py-3 text-left">Guests</th>
-                    <th className="px-4 py-3 text-left">Dietary</th>
-                    <th className="px-4 py-3 text-left">Message</th>
-                    <th className="px-4 py-3 text-left">Submitted</th>
+                    <th className="px-4 py-3 text-left">Nama</th>
+                    <th className="px-4 py-3 text-left">Hadir</th>
+                    <th className="px-4 py-3 text-left">Orang</th>
+                    <th className="px-4 py-3 text-left">Plate</th>
+                    <th className="px-4 py-3 text-left">Ucapan</th>
+                    <th className="px-4 py-3 text-left">Masa</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -155,28 +145,16 @@ export default function AdminPage() {
                       <td className="px-4 py-3 text-gray-400">{i + 1}</td>
                       <td className="px-4 py-3 font-medium text-gray-800">{r.name}</td>
                       <td className="px-4 py-3">
-                        <a
-                          href={`https://wa.me/60${r.whatsapp.replace(/^0/, '')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-emerald-600 hover:underline"
-                        >
-                          {r.whatsapp}
-                        </a>
-                      </td>
-                      <td className="px-4 py-3">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                          r.attending === 'yes' ? 'bg-emerald-100 text-emerald-700'
-                          : r.attending === 'maybe' ? 'bg-amber-100 text-amber-700'
-                          : 'bg-red-100 text-red-700'
+                          r.attending === 'yes' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
                         }`}>
-                          {r.attending === 'yes' ? '✅ Yes' : r.attending === 'maybe' ? '🤔 Maybe' : '❌ No'}
+                          {r.attending === 'yes' ? '✅ Datang' : '❌ Tak datang'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-center">
-                        {r.attending !== 'no' ? r.guest_count : '—'}
+                      <td className="px-4 py-3 text-center text-gray-700">
+                        {r.guest_count ?? '—'}
                       </td>
-                      <td className="px-4 py-3 text-gray-500">{r.dietary || '—'}</td>
+                      <td className="px-4 py-3 text-gray-500 font-mono tracking-wider">{r.car_plate || '—'}</td>
                       <td className="px-4 py-3 text-gray-500 max-w-xs truncate">{r.message || '—'}</td>
                       <td className="px-4 py-3 text-gray-400 whitespace-nowrap">
                         {new Date(r.created_at).toLocaleString('en-MY', { timeZone: 'Asia/Kuala_Lumpur', dateStyle: 'short', timeStyle: 'short' })}
