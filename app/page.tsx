@@ -278,7 +278,7 @@ export default function RsvpPage() {
                 <span className="text-amber-600">→</span>
               </p>
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight">
-                Hoi <span className="text-amber-400">{data.name.split(' ')[0]}</span>! 🎉
+                Holla <span className="text-amber-400">{data.name.split(' ')[0]}</span>!!!! 🎉
               </h2>
               <p className="text-emerald-300 text-xl mb-8">Datang tak ke open house Raya ni?</p>
               <div className="flex flex-col gap-3">
