@@ -145,11 +145,42 @@ export default function RsvpPage() {
             Jangan malu, jangan segan — makan banyak-banyak! 😄
           </p>
 
-          {/* Divider */}
-          <div className="flex items-center gap-3 justify-center mb-8">
-            <div className="h-px w-16 bg-emerald-700" />
-            <span className="text-amber-500 text-lg">✦</span>
-            <div className="h-px w-16 bg-emerald-700" />
+          {/* Event details card */}
+          <div className="bg-emerald-950/60 border border-emerald-800 rounded-2xl px-6 py-5 mb-8 text-left space-y-3">
+            <div className="flex items-start gap-3">
+              <span className="text-xl mt-0.5">📅</span>
+              <div>
+                <p className="text-white font-semibold">12 April 2026</p>
+                <p className="text-emerald-400 text-sm">12 Tengah Hari sampai makanan habis 😋</p>
+              </div>
+            </div>
+            <div className="h-px bg-emerald-900" />
+            <div className="flex items-start gap-3">
+              <span className="text-xl mt-0.5">📍</span>
+              <div>
+                <p className="text-white font-semibold mb-2">Lokasi</p>
+                <div className="flex gap-2 flex-wrap">
+                  <a
+                    href="https://share.google/HLiXXjZnsaiuby28e"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 active:scale-95 border border-white/20 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-all"
+                  >
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    Google Maps
+                  </a>
+                  <a
+                    href="https://ul.waze.com/ul?place=ChIJSRnC1xy1zTER3ockJJOBpwg&ll=3.00754800%2C101.66829900&navigate=yes&utm_campaign=default&utm_source=waze_website&utm_medium=lm_share_location"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 bg-[#05c8f7]/10 hover:bg-[#05c8f7]/20 active:scale-95 border border-[#05c8f7]/30 text-[#05c8f7] text-sm font-semibold px-4 py-2 rounded-lg transition-all"
+                  >
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a9.5 9.5 0 0 1 9.5 9.5c0 5.25-9.5 13-9.5 13S2.5 16.75 2.5 11.5A9.5 9.5 0 0 1 12 2zm0 5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9z"/></svg>
+                    Waze
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
 
           <p className="text-emerald-500 text-sm mb-6">
