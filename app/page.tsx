@@ -192,7 +192,7 @@ export default function RsvpPage() {
             onClick={() => setStarted(true)}
             className="bg-amber-400 hover:bg-amber-300 active:scale-95 text-emerald-950 font-bold px-10 py-4 rounded-xl transition-all text-lg shadow-lg shadow-amber-400/20"
           >
-            Mula RSVP &nbsp;→
+            RSVP Open House Faiz & Umi &nbsp;→
           </button>
 
           <p className="text-emerald-800 text-xs mt-8">
