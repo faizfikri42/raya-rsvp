@@ -18,6 +18,10 @@ export default function AdminPage() {
   const [rsvps, setRsvps] = useState<RSVP[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<Partial<RSVP>>({});
+  const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   async function fetchRsvps(s: string) {
     setLoading(true);
@@ -44,7 +48,56 @@ export default function AdminPage() {
     fetchRsvps(secret);
   }
 
-  // Refresh every 30s
+  async function handleDelete(id: string, name: string) {
+    if (!confirm(`Delete RSVP from ${name}?`)) return;
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/rsvps/${id}?secret=${encodeURIComponent(secret)}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        setRsvps(prev => prev.filter(r => r.id !== id));
+      }
+    } catch {
+      alert('Failed to delete.');
+    }
+    setDeletingId(null);
+  }
+
+  function startEdit(r: RSVP) {
+    setEditingId(r.id);
+    setEditForm({
+      name: r.name,
+      attending: r.attending,
+      guest_count: r.guest_count,
+      car_plate: r.car_plate ?? '',
+      message: r.message ?? '',
+    });
+  }
+
+  async function handleSave(id: string) {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/rsvps/${id}?secret=${encodeURIComponent(secret)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...editForm,
+          car_plate: editForm.car_plate || null,
+          message: editForm.message || null,
+        }),
+      });
+      if (res.ok) {
+        const { rsvp } = await res.json();
+        setRsvps(prev => prev.map(r => r.id === id ? rsvp : r));
+        setEditingId(null);
+      }
+    } catch {
+      alert('Failed to save.');
+    }
+    setSaving(false);
+  }
+
   useEffect(() => {
     if (!authenticated) return;
     const interval = setInterval(() => fetchRsvps(secret), 30000);
@@ -86,7 +139,7 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -137,28 +190,114 @@ export default function AdminPage() {
                     <th className="px-4 py-3 text-left">Plate</th>
                     <th className="px-4 py-3 text-left">Ucapan</th>
                     <th className="px-4 py-3 text-left">Masa</th>
+                    <th className="px-4 py-3 text-left">Tindakan</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {rsvps.map((r, i) => (
-                    <tr key={r.id} className="hover:bg-gray-50 transition">
+                    <tr key={r.id} className={`transition ${deletingId === r.id ? 'opacity-40' : 'hover:bg-gray-50'}`}>
                       <td className="px-4 py-3 text-gray-400">{i + 1}</td>
-                      <td className="px-4 py-3 font-medium text-gray-800">{r.name}</td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                          r.attending === 'yes' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
-                        }`}>
-                          {r.attending === 'yes' ? '✅ Datang' : '❌ Tak datang'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-center text-gray-700">
-                        {r.guest_count ?? '—'}
-                      </td>
-                      <td className="px-4 py-3 text-gray-500 font-mono tracking-wider">{r.car_plate || '—'}</td>
-                      <td className="px-4 py-3 text-gray-500 max-w-xs truncate">{r.message || '—'}</td>
-                      <td className="px-4 py-3 text-gray-400 whitespace-nowrap">
-                        {new Date(r.created_at).toLocaleString('en-MY', { timeZone: 'Asia/Kuala_Lumpur', dateStyle: 'short', timeStyle: 'short' })}
-                      </td>
+
+                      {editingId === r.id ? (
+                        <>
+                          <td className="px-4 py-2">
+                            <input
+                              value={editForm.name ?? ''}
+                              onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
+                              className="border border-gray-300 rounded-lg px-2 py-1 w-full text-gray-800 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                            />
+                          </td>
+                          <td className="px-4 py-2">
+                            <select
+                              value={editForm.attending ?? 'yes'}
+                              onChange={e => setEditForm(f => ({ ...f, attending: e.target.value as 'yes' | 'no' }))}
+                              className="border border-gray-300 rounded-lg px-2 py-1 text-gray-800 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                            >
+                              <option value="yes">✅ Datang</option>
+                              <option value="no">❌ Tak datang</option>
+                            </select>
+                          </td>
+                          <td className="px-4 py-2">
+                            <select
+                              value={editForm.guest_count ?? 1}
+                              onChange={e => setEditForm(f => ({ ...f, guest_count: parseInt(e.target.value) }))}
+                              className="border border-gray-300 rounded-lg px-2 py-1 text-gray-800 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                            >
+                              {[1,2,3,4].map(n => <option key={n} value={n}>{n}</option>)}
+                            </select>
+                          </td>
+                          <td className="px-4 py-2">
+                            <input
+                              value={editForm.car_plate ?? ''}
+                              onChange={e => setEditForm(f => ({ ...f, car_plate: e.target.value.toUpperCase() }))}
+                              className="border border-gray-300 rounded-lg px-2 py-1 w-24 text-gray-800 uppercase tracking-wider focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                            />
+                          </td>
+                          <td className="px-4 py-2">
+                            <input
+                              value={editForm.message ?? ''}
+                              onChange={e => setEditForm(f => ({ ...f, message: e.target.value }))}
+                              className="border border-gray-300 rounded-lg px-2 py-1 w-40 text-gray-800 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                            />
+                          </td>
+                          <td className="px-4 py-3 text-gray-400 whitespace-nowrap">
+                            {new Date(r.created_at).toLocaleString('en-MY', { timeZone: 'Asia/Kuala_Lumpur', dateStyle: 'short', timeStyle: 'short' })}
+                          </td>
+                          <td className="px-4 py-2">
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleSave(r.id)}
+                                disabled={saving}
+                                className="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition"
+                              >
+                                {saving ? '...' : 'Save'}
+                              </button>
+                              <button
+                                onClick={() => setEditingId(null)}
+                                className="bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td className="px-4 py-3 font-medium text-gray-800">{r.name}</td>
+                          <td className="px-4 py-3">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                              r.attending === 'yes' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+                            }`}>
+                              {r.attending === 'yes' ? '✅ Datang' : '❌ Tak datang'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-center text-gray-700">
+                            {r.guest_count ?? '—'}
+                          </td>
+                          <td className="px-4 py-3 text-gray-500 font-mono tracking-wider">{r.car_plate || '—'}</td>
+                          <td className="px-4 py-3 text-gray-500 max-w-xs truncate">{r.message || '—'}</td>
+                          <td className="px-4 py-3 text-gray-400 whitespace-nowrap">
+                            {new Date(r.created_at).toLocaleString('en-MY', { timeZone: 'Asia/Kuala_Lumpur', dateStyle: 'short', timeStyle: 'short' })}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => startEdit(r)}
+                                className="bg-amber-100 hover:bg-amber-200 text-amber-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition"
+                              >
+                                ✏️ Edit
+                              </button>
+                              <button
+                                onClick={() => handleDelete(r.id, r.name)}
+                                disabled={deletingId === r.id}
+                                className="bg-red-100 hover:bg-red-200 disabled:opacity-50 text-red-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition"
+                              >
+                                🗑️ Delete
+                              </button>
+                            </div>
+                          </td>
+                        </>
+                      )}
                     </tr>
                   ))}
                 </tbody>
