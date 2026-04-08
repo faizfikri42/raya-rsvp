@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 
 type FormData = {
   name: string;
@@ -206,15 +207,23 @@ export default function RsvpPage() {
   if (submitted) {
     return (
       <div className="min-h-screen bg-[#0d2418] flex items-center justify-center p-6">
-        <div className="text-center max-w-md">
-          <div className="text-6xl mb-6">🌙✨</div>
-          <h2 className="text-4xl font-bold text-white mb-3">Terima kasih, {data.name.split(' ')[0]}!</h2>
+        <div className="text-center max-w-md animate-slide-up">
+          <div className="text-5xl mb-4">🌙✨</div>
+          <h2 className="text-4xl font-bold text-white mb-2">Terima kasih, {data.name.split(' ')[0]}!</h2>
           {data.attending === 'yes' ? (
-            <p className="text-emerald-300 text-lg">Nampak muka kau nanti! 😄</p>
+            <p className="text-emerald-300 text-lg mb-6">Nampak muka kau nanti! 😄</p>
           ) : (
-            <p className="text-emerald-300 text-lg">Takpe, lain kali kita jumpa! 😊</p>
+            <p className="text-emerald-300 text-lg mb-6">Takpe, lain kali kita jumpa! 😊</p>
           )}
-          <p className="text-amber-400 font-semibold mt-6 text-lg">Selamat Hari Raya Aidilfitri 🌟</p>
+          <div className="relative w-56 h-56 mx-auto mb-6">
+            <Image
+              src="/gambar raya.jpg"
+              alt="Faiz"
+              fill
+              className="object-cover rounded-2xl shadow-xl shadow-black/40"
+            />
+          </div>
+          <p className="text-amber-400 font-semibold text-lg">Selamat Hari Raya Aidilfitri 🌟</p>
           <p className="text-emerald-600 text-sm mt-1">Maaf Zahir & Batin</p>
         </div>
       </div>
