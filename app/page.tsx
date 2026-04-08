@@ -141,7 +141,7 @@ export default function RsvpPage() {
             Assalamualaikum & Selamat Datang! 🤗
           </p>
           <p className="text-emerald-400 text-base leading-relaxed mb-8">
-            Kami dengan penuh kegembiraan menjemput anda ke majlis<br className="hidden md:block" />
+            Kami dengan penuh kegembiraan menjemput korang ke majlis<br className="hidden md:block" />
             <span className="text-white font-semibold"> Open House Hari Raya Aidilfitri</span> kami.<br />
             Jangan malu, jangan segan — makan banyak-banyak! 😄
           </p>
@@ -186,7 +186,7 @@ export default function RsvpPage() {
 
           <p className="text-emerald-500 text-sm mb-6">
             Ambik masa 1 minit je untuk isi borang ni.<br />
-            Tolong confirm supaya kami boleh bersedia untuk anda! 🙏
+            Tolong confirm supaya kami boleh bersedia untuk korang! 🙏
           </p>
 
           <button
