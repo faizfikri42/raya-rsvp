@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { getAllRsvps } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -10,11 +10,8 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const sql = getDb();
-    const rows = await sql`
-      SELECT * FROM rsvps ORDER BY created_at DESC
-    `;
-    return NextResponse.json({ rsvps: rows });
+    const rsvps = await getAllRsvps();
+    return NextResponse.json({ rsvps });
   } catch (error) {
     console.error('Fetch RSVPs error:', error);
     return NextResponse.json({ error: 'Failed to fetch RSVPs' }, { status: 500 });

@@ -1,22 +1,43 @@
-import { neon } from '@neondatabase/serverless';
+import { put, list, getDownloadUrl } from '@vercel/blob';
 
-export function getDb() {
-  const sql = neon(process.env.DATABASE_URL!);
-  return sql;
+export type RSVP = {
+  id: string;
+  name: string;
+  whatsapp: string;
+  attending: 'yes' | 'maybe' | 'no';
+  guest_count: number;
+  dietary: string | null;
+  message: string | null;
+  created_at: string;
+};
+
+export async function saveRsvp(data: Omit<RSVP, 'id' | 'created_at'>): Promise<RSVP> {
+  const rsvp: RSVP = {
+    ...data,
+    id: Date.now().toString(),
+    created_at: new Date().toISOString(),
+  };
+
+  await put(`rsvps/${rsvp.id}.json`, JSON.stringify(rsvp), {
+    access: 'public',
+    contentType: 'application/json',
+    addRandomSuffix: false,
+  });
+
+  return rsvp;
 }
 
-export async function setupDatabase() {
-  const sql = getDb();
-  await sql`
-    CREATE TABLE IF NOT EXISTS rsvps (
-      id SERIAL PRIMARY KEY,
-      name VARCHAR(255) NOT NULL,
-      whatsapp VARCHAR(50) NOT NULL,
-      attending VARCHAR(10) NOT NULL,
-      guest_count INTEGER NOT NULL DEFAULT 1,
-      dietary TEXT,
-      message TEXT,
-      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-    )
-  `;
+export async function getAllRsvps(): Promise<RSVP[]> {
+  const { blobs } = await list({ prefix: 'rsvps/' });
+
+  const rsvps = await Promise.all(
+    blobs.map(async (blob) => {
+      const res = await fetch(blob.downloadUrl);
+      return res.json() as Promise<RSVP>;
+    })
+  );
+
+  return rsvps.sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 }

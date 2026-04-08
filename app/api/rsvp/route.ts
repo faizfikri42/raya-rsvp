@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { saveRsvp } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,19 +10,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Name, WhatsApp, and attendance are required' }, { status: 400 });
     }
 
+    if (!['yes', 'maybe', 'no'].includes(attending)) {
+      return NextResponse.json({ error: 'Invalid attendance value' }, { status: 400 });
+    }
+
     const count = parseInt(guest_count) || 1;
     if (count < 1 || count > 20) {
       return NextResponse.json({ error: 'Guest count must be between 1 and 20' }, { status: 400 });
     }
 
-    const sql = getDb();
-    const result = await sql`
-      INSERT INTO rsvps (name, whatsapp, attending, guest_count, dietary, message)
-      VALUES (${name.trim()}, ${whatsapp.trim()}, ${attending}, ${count}, ${dietary?.trim() || null}, ${message?.trim() || null})
-      RETURNING id
-    `;
+    const rsvp = await saveRsvp({
+      name: name.trim(),
+      whatsapp: whatsapp.trim(),
+      attending,
+      guest_count: count,
+      dietary: dietary?.trim() || null,
+      message: message?.trim() || null,
+    });
 
-    return NextResponse.json({ success: true, id: result[0].id });
+    return NextResponse.json({ success: true, id: rsvp.id });
   } catch (error) {
     console.error('RSVP submit error:', error);
     return NextResponse.json({ error: 'Failed to submit RSVP' }, { status: 500 });
