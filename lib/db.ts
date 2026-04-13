@@ -1,4 +1,8 @@
-import { put, list, del } from '@vercel/blob';
+import { neon } from '@neondatabase/serverless';
+
+const sql = neon(process.env.DATABASE_URL!);
+
+const TABLE = 'open_house_rsvps';
 
 export type RSVP = {
   id: string;
@@ -11,57 +15,42 @@ export type RSVP = {
 };
 
 export async function saveRsvp(data: Omit<RSVP, 'id' | 'created_at'>): Promise<RSVP> {
-  const rsvp: RSVP = {
-    ...data,
-    id: Date.now().toString(),
-    created_at: new Date().toISOString(),
-  };
-
-  await put(`rsvps/${rsvp.id}.json`, JSON.stringify(rsvp), {
-    access: 'public',
-    contentType: 'application/json',
-    addRandomSuffix: false,
-  });
-
-  return rsvp;
+  const id = Date.now().toString();
+  const rows = await sql(
+    `INSERT INTO ${TABLE} (id, name, attending, guest_count, car_plate, message)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING *`,
+    [id, data.name, data.attending, data.guest_count ?? null, data.car_plate ?? null, data.message ?? null]
+  );
+  return rows[0] as RSVP;
 }
 
 export async function getAllRsvps(): Promise<RSVP[]> {
-  const { blobs } = await list({ prefix: 'rsvps/' });
-
-  const rsvps = await Promise.all(
-    blobs.map(async (blob) => {
-      const res = await fetch(blob.downloadUrl);
-      return res.json() as Promise<RSVP>;
-    })
-  );
-
-  return rsvps.sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
+  const rows = await sql(`SELECT * FROM ${TABLE} ORDER BY created_at DESC`);
+  return rows as RSVP[];
 }
 
 export async function deleteRsvp(id: string): Promise<void> {
-  const { blobs } = await list({ prefix: `rsvps/${id}.json` });
-  if (blobs.length > 0) {
-    await del(blobs[0].url);
-  }
+  await sql(`DELETE FROM ${TABLE} WHERE id = $1`, [id]);
 }
 
 export async function updateRsvp(id: string, data: Partial<Omit<RSVP, 'id' | 'created_at'>>): Promise<RSVP> {
-  const { blobs } = await list({ prefix: `rsvps/${id}.json` });
-  if (blobs.length === 0) throw new Error('RSVP not found');
+  const existing = await sql(`SELECT * FROM ${TABLE} WHERE id = $1`, [id]);
+  if (existing.length === 0) throw new Error('RSVP not found');
 
-  const res = await fetch(blobs[0].downloadUrl);
-  const existing: RSVP = await res.json();
+  const r = existing[0] as RSVP;
+  const name        = data.name        !== undefined ? data.name        : r.name;
+  const attending   = data.attending   !== undefined ? data.attending   : r.attending;
+  const guest_count = data.guest_count !== undefined ? data.guest_count : r.guest_count;
+  const car_plate   = data.car_plate   !== undefined ? data.car_plate   : r.car_plate;
+  const message     = data.message     !== undefined ? data.message     : r.message;
 
-  const updated: RSVP = { ...existing, ...data };
-
-  await put(`rsvps/${id}.json`, JSON.stringify(updated), {
-    access: 'public',
-    contentType: 'application/json',
-    addRandomSuffix: false,
-  });
-
-  return updated;
+  const rows = await sql(
+    `UPDATE ${TABLE}
+     SET name = $1, attending = $2, guest_count = $3, car_plate = $4, message = $5
+     WHERE id = $6
+     RETURNING *`,
+    [name, attending, guest_count ?? null, car_plate ?? null, message ?? null, id]
+  );
+  return rows[0] as RSVP;
 }
